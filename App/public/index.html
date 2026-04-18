@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
+<title>Dynasties Chinoises</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"/></noscript>
+<style>
+:root{
+  --ink:#0a0806;--gold:#c9a84c;--gold2:#e8c97a;--parch:#f5eed8;--parch2:#ede3c4;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
+  --font-h:'IM Fell English',Georgia,serif;--font-b:'Cormorant Garamond',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--ink);overflow:hidden;}
+#app{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;padding-top:var(--safe-top);background:var(--ink);}
+
+/* HEADER */
+#header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;border-bottom:1px solid #3a2e1a;background:var(--ink);flex-shrink:0;}
+#header h1{font-family:var(--font-h);font-size:1.2rem;color:var(--gold);letter-spacing:.04em;line-height:1.1;}
+#header h1 span{display:block;font-size:.65rem;color:var(--gold2);font-style:italic;letter-spacing:.1em;}
+#headerBtns{display:flex;align-items:center;gap:8px;}
+#btnLang{background:none;border:1px solid #3a2e1a;border-radius:20px;color:var(--gold);font-size:1.1rem;cursor:pointer;padding:3px 10px;font-family:var(--font-b);}
+#btnSettings{background:none;border:none;color:var(--gold);font-size:1.3rem;cursor:pointer;padding:4px;}
+
+/* TABS */
+#tabs{display:flex;background:#120f08;border-bottom:1px solid #3a2e1a;flex-shrink:0;}
+.tab{flex:1;padding:9px 4px;font-family:var(--font-b);font-size:.72rem;color:#8a7a50;background:none;border:none;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+.tab.active{color:var(--gold);border-bottom:2px solid var(--gold);}
+
+/* CONTENT */
+#content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+
+/* DYNASTIES */
+#tabDynasties{display:block;}
+#filterBar{display:flex;gap:6px;padding:10px 12px;overflow-x:auto;flex-shrink:0;background:var(--ink);border-bottom:1px solid #2a2010;scrollbar-width:none;}
+#filterBar::-webkit-scrollbar{display:none;}
+.pill{white-space:nowrap;padding:5px 12px;border-radius:20px;border:1px solid #4a3a1a;background:none;color:#9a8a5a;font-family:var(--font-b);font-size:.75rem;cursor:pointer;transition:all .2s;}
+.pill.active{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+#dynastyList{padding:10px 12px 80px;}
+.dynasty-card{background:#14100a;border:1px solid #3a2e1a;border-radius:8px;margin-bottom:10px;overflow:hidden;}
+.dynasty-header{display:flex;align-items:center;padding:12px 14px;cursor:pointer;gap:10px;}
+.dynasty-era{width:52px;text-align:center;flex-shrink:0;}
+.dynasty-era .year{font-family:var(--font-b);font-size:.62rem;color:#7a6a40;line-height:1.2;}
+.dynasty-era .cn{font-size:1.4rem;color:var(--gold);line-height:1;}
+.dynasty-info{flex:1;}
+.dynasty-info h3{font-family:var(--font-h);font-size:1rem;color:var(--parch);line-height:1.1;}
+.dynasty-info .sub{font-family:var(--font-b);font-size:.75rem;color:#9a8a5a;font-style:italic;margin-top:2px;}
+.dynasty-tag{font-family:var(--font-b);font-size:.62rem;padding:3px 8px;border-radius:10px;border:1px solid #4a3a1a;color:#7a6a40;white-space:nowrap;}
+.dynasty-tag.ant{border-color:#8B4513;color:#cd853f;}
+.dynasty-tag.imp{border-color:#4a1a1a;color:#c0392b;}
+.dynasty-tag.med{border-color:#1a3a1a;color:#27ae60;}
+.dynasty-tag.mod{border-color:#1a2a4a;color:#2980b9;}
+.dynasty-body{display:none;padding:0 14px 14px;border-top:1px solid #2a2010;}
+.dynasty-body.open{display:block;}
+.dynasty-body p{font-family:var(--font-b);font-size:.85rem;color:#c8b882;line-height:1.6;margin-bottom:8px;}
+.dynasty-body .facts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
+.fact-item{background:#0d0b06;border:1px solid #2a2010;border-radius:6px;padding:7px 10px;}
+.fact-item .lbl{font-family:var(--font-b);font-size:.62rem;color:#7a6a40;text-transform:uppercase;letter-spacing:.1em;}
+.fact-item .val{font-family:var(--font-h);font-size:.82rem;color:var(--gold2);margin-top:2px;}
+.empereurs-btn{margin-top:10px;width:100%;padding:8px;background:none;border:1px solid var(--gold);border-radius:6px;color:var(--gold);font-family:var(--font-b);font-size:.8rem;cursor:pointer;}
+
+/* EMPEREURS */
+#tabEmpereurs{display:none;}
+#empSearch{padding:10px 12px;background:var(--ink);border-bottom:1px solid #2a2010;}
+#empSearch input{width:100%;padding:8px 12px;background:#14100a;border:1px solid #3a2e1a;border-radius:8px;color:var(--parch);font-family:var(--font-b);font-size:.9rem;}
+#empSearch input::placeholder{color:#5a4a2a;}
+#empSearch input:focus{outline:none;border-color:var(--gold);}
+#empList{padding:10px 12px 80px;}
+.emp-card{display:flex;align-items:center;gap:12px;padding:10px;background:#14100a;border:1px solid #2a2010;border-radius:8px;margin-bottom:8px;cursor:pointer;transition:border-color .2s;}
+.emp-card:active{border-color:var(--gold);}
+.emp-photo{width:54px;height:54px;border-radius:6px;background:#1a1408;border:1px solid #3a2e1a;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.emp-info h4{font-family:var(--font-h);font-size:.95rem;color:var(--parch);}
+.emp-info .emp-cn{font-family:var(--font-b);font-size:.8rem;color:var(--gold);font-style:italic;}
+.emp-info .emp-sub{font-family:var(--font-b);font-size:.72rem;color:#7a6a40;margin-top:2px;}
+
+/* DETAIL */
+#detailOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;overflow-y:auto;padding-top:var(--safe-top);}
+#detailOverlay.open{display:block;}
+#detailContent{padding:16px 16px 80px;}
+#detailBack{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--gold);font-family:var(--font-b);font-size:.85rem;cursor:pointer;margin-bottom:14px;}
+#detailHero{display:flex;gap:14px;margin-bottom:16px;}
+#detailImg{width:90px;height:110px;object-fit:cover;border-radius:8px;border:1px solid #3a2e1a;background:#1a1408;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+#detailMeta h2{font-family:var(--font-h);font-size:1.3rem;color:var(--gold);line-height:1.2;}
+#detailMeta .cn-name{font-family:var(--font-b);font-size:1rem;color:var(--gold2);font-style:italic;margin:4px 0;}
+#detailMeta .dynasty-badge{display:inline-block;padding:3px 10px;border-radius:12px;background:#2a1a08;border:1px solid var(--gold);font-family:var(--font-b);font-size:.72rem;color:var(--gold);}
+#detailGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.dg-item{background:#14100a;border:1px solid #2a2010;border-radius:8px;padding:10px 12px;}
+.dg-item .lbl{font-family:var(--font-b);font-size:.62rem;color:#7a6a40;text-transform:uppercase;letter-spacing:.1em;}
+.dg-item .val{font-family:var(--font-h);font-size:.88rem;color:var(--parch);margin-top:3px;}
+#detailBio{font-family:var(--font-b);font-size:.9rem;color:#c8b882;line-height:1.7;}
+#detailBio h3{font-family:var(--font-h);font-size:1rem;color:var(--gold2);margin:14px 0 6px;}
+
+/* CARTE */
+#tabCarte{display:none;flex:1;flex-direction:column;height:100%;}
+#mapContainer{flex:1;position:relative;}
+#map{position:absolute;inset:0;}
+.cn-popup .leaflet-popup-content-wrapper{background:rgba(10,8,6,0.96);border:1px solid #c9a84c;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.7);padding:0;}
+.cn-popup .leaflet-popup-content{margin:12px 14px;}
+.cn-popup .leaflet-popup-tip-container{display:none;}
+.cn-popup .leaflet-popup-close-button{color:#c9a84c !important;font-size:1rem;top:6px;right:8px;}
+.leaflet-control-zoom a{background:rgba(10,8,6,0.92)!important;color:#c9a84c!important;border-color:#3a2e1a!important;font-family:'IM Fell English',serif!important;}
+.leaflet-control-zoom a:hover{background:#1a1408!important;}
+
+/* QUIZ */
+#tabQuiz{display:none;padding:16px 14px 80px;}
+#quizHome{text-align:center;}
+#quizHome h2{font-family:var(--font-h);font-size:1.4rem;color:var(--gold);margin-bottom:8px;}
+#quizHome p{font-family:var(--font-b);font-size:.85rem;color:#9a8a5a;margin-bottom:20px;}
+.quiz-mode-btn{display:block;width:100%;padding:12px;margin-bottom:10px;background:#14100a;border:1px solid #3a2e1a;border-radius:8px;color:var(--parch);font-family:var(--font-b);font-size:.9rem;cursor:pointer;text-align:left;transition:border-color .2s;}
+.quiz-mode-btn:active{border-color:var(--gold);}
+.quiz-mode-btn span{display:block;font-size:.75rem;color:#7a6a40;margin-top:3px;}
+#quizGame{display:none;}
+#quizProgress{display:flex;gap:4px;margin-bottom:14px;}
+.qp-dot{flex:1;height:4px;border-radius:2px;background:#2a2010;}
+.qp-dot.done{background:var(--gold);}
+.qp-dot.current{background:var(--gold2);}
+#quizQ{font-family:var(--font-h);font-size:1.1rem;color:var(--parch);margin-bottom:16px;line-height:1.4;}
+#quizImg{width:100%;max-height:160px;object-fit:cover;border-radius:8px;margin-bottom:14px;display:none;border:1px solid #3a2e1a;}
+.quiz-opt{display:block;width:100%;padding:11px 14px;margin-bottom:8px;background:#14100a;border:1px solid #3a2e1a;border-radius:8px;color:var(--parch);font-family:var(--font-b);font-size:.9rem;cursor:pointer;text-align:left;transition:all .2s;}
+.quiz-opt.correct{background:#0d2a0d;border-color:#27ae60;color:#27ae60;}
+.quiz-opt.wrong{background:#2a0d0d;border-color:#c0392b;color:#c0392b;}
+#quizNext{display:none;width:100%;padding:11px;background:var(--gold);border:none;border-radius:8px;color:var(--ink);font-family:var(--font-h);font-size:1rem;cursor:pointer;margin-top:8px;}
+#quizResult{display:none;text-align:center;padding:20px 0;}
+#quizResult h2{font-family:var(--font-h);font-size:1.5rem;color:var(--gold);margin-bottom:8px;}
+#quizResult p{font-family:var(--font-b);font-size:1rem;color:#c8b882;margin-bottom:20px;}
+#quizReplay{padding:11px 30px;background:none;border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-family:var(--font-b);font-size:.9rem;cursor:pointer;}
+
+/* SETTINGS */
+#settingsOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:200;padding-top:var(--safe-top);overflow-y:auto;}
+#settingsOverlay.open{display:block;}
+#settingsContent{padding:20px 16px 60px;}
+#settingsContent h2{font-family:var(--font-h);font-size:1.3rem;color:var(--gold);margin-bottom:4px;}
+#settingsContent .sub{font-family:var(--font-b);font-size:.8rem;color:#7a6a40;margin-bottom:16px;font-style:italic;}
+.apps-list{display:flex;flex-direction:column;gap:8px;}
+.app-link{display:flex;align-items:center;gap:14px;padding:11px 14px;background:#14100a;border:1px solid #2a2010;border-radius:10px;cursor:pointer;transition:border-color .2s;}
+.app-link:active{border-color:var(--gold);}
+.app-real-icon{width:44px;height:44px;border-radius:10px;flex-shrink:0;background:#1a1408;object-fit:cover;}
+.app-name{font-family:var(--font-b);font-size:.9rem;color:#c8b882;line-height:1.2;}
+.app-store-badge{margin-left:auto;flex-shrink:0;height:28px;width:auto;}
+.settings-close{display:block;margin:20px auto 0;padding:10px 30px;background:none;border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-family:var(--font-b);cursor:pointer;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <h1 id="appTitle">Dynasties Chinoises <span>中国王朝</span></h1>
+    <div id="headerBtns">
+      <button id="btnLang">🇬🇧</button>
+      <button id="btnSettings">⚙</button>
+    </div>
+  </div>
+  <div id="tabs">
+    <button class="tab active" data-tab="Dynasties" id="tab0">Dynasties</button>
+    <button class="tab" data-tab="Empereurs" id="tab1">Empereurs</button>
+    <button class="tab" data-tab="Carte" id="tab2">Carte</button>
+    <button class="tab" data-tab="Quiz" id="tab3">Quiz</button>
+  </div>
+  <div id="content">
+    <div id="tabDynasties">
+      <div id="filterBar"></div>
+      <div id="dynastyList"></div>
+    </div>
+    <div id="tabEmpereurs">
+      <div id="empSearch"><input id="searchInput" type="text" placeholder="Rechercher un empereur…"/></div>
+      <div id="empList"></div>
+    </div>
+    <div id="tabCarte">
+      <div id="mapContainer"><div id="map"></div></div>
+    </div>
+    <div id="tabQuiz">
+      <div id="quizHome">
+        <h2 id="quizTitle">Quiz — Dynasties Chinoises</h2>
+        <p id="quizSubtitle">Testez vos connaissances sur l'histoire impériale de Chine</p>
+        <button class="quiz-mode-btn" onclick="startQuiz('dynasties')" id="qm0">Dynasties<span id="qm0s">Identifiez la période et les empereurs</span></button>
+        <button class="quiz-mode-btn" onclick="startQuiz('dates')" id="qm1">Dates &amp; chronologie<span id="qm1s">Placez les dynasties dans le temps</span></button>
+        <button class="quiz-mode-btn" onclick="startQuiz('capitales')" id="qm2">Capitales<span id="qm2s">Retrouvez les capitales impériales</span></button>
+        <button class="quiz-mode-btn" onclick="startQuiz('mix')" id="qm3">Mélange<span id="qm3s">Questions variées sur toutes les dynasties</span></button>
+      </div>
+      <div id="quizGame">
+        <div id="quizProgress"></div>
+        <div id="quizQ"></div>
+        <img id="quizImg" src="" alt=""/>
+        <div id="quizOpts"></div>
+        <button id="quizNext" onclick="nextQuestion()">Question suivante →</button>
+        <div id="quizResult">
+          <h2 id="quizScore"></h2>
+          <p id="quizComment"></p>
+          <button id="quizReplay" onclick="backToQuizHome()">Rejouer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="detailOverlay">
+  <div id="detailContent">
+    <button id="detailBack" onclick="closeDetail()">← Retour</button>
+    <div id="detailHero">
+      <div id="detailImg">👑</div>
+      <div id="detailMeta">
+        <h2 id="detailName"></h2>
+        <div class="cn-name" id="detailCN"></div>
+        <div class="dynasty-badge" id="detailDyn"></div>
+      </div>
+    </div>
+    <div id="detailGrid"></div>
+    <div id="detailBio"></div>
+  </div>
+</div>
+
+<div id="settingsOverlay">
+  <div id="settingsContent">
+    <h2 id="settingsTitle">Autres applications</h2>
+    <p class="sub">© Michel Garlandat</p>
+    <div class="apps-list" id="appsGrid"></div>
+    <button class="settings-close" onclick="document.getElementById('settingsOverlay').classList.remove('open')" id="settingsCloseBtn">Fermer</button>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ===================== I18N =====================
+let lang = 'fr';
+
+const T = {
+  fr: {
+    appTitle: 'Dynasties Chinoises',
+    appSub: '中国王朝',
+    tabs: ['Dynasties','Empereurs','Carte','Quiz'],
+    search: 'Rechercher un empereur…',
+    quizTitle: 'Quiz — Dynasties Chinoises',
+    quizSub: "Testez vos connaissances sur l'histoire impériale de Chine",
+    qm: ['Dynasties','Dates & chronologie','Capitales','Mélange'],
+    qms: ["Identifiez la période et les empereurs","Placez les dynasties dans le temps","Retrouvez les capitales impériales","Questions variées sur toutes les dynasties"],
+    quizNext: 'Question suivante →',
+    quizReplay: 'Rejouer',
+    settingsTitle: 'Autres applications',
+    settingsClose: 'Fermer',
+    detailBack: '← Retour',
+    capitale: 'Capitale',
+    voirEmpereurs: 'Voir les empereurs →',
+    eraAll: 'Toutes',
+    eras: {'Antiquité':'Antiquité','Impérial ancien':'Impérial','Médiéval':'Médiéval','Moderne':'Moderne'},
+    facts: {empereurs:'Empereurs',duree:'Durée',fondateur:'Fondateur',fin_cause:'Fin'},
+    lbl: {Règne:'Règne',Naissance:'Naissance',Décès:'Décès',Titre:'Titre'},
+    avjc: 'av. J.-C.',
+    quizQ: {
+      dynasties: d => `À quelle période appartient la dynasty ${d.nom} (${d.cn}) ?`,
+      dates: d => `Quelle est la période de la dynasty ${d.nom} ?`,
+      capitales: d => `Quelle était la capitale de la dynasty ${d.nom} ?`,
+    },
+    score: (s,t) => `${s} / ${t}`,
+    comment: p => p>=.8 ? "Excellent ! Vous maîtrisez l'histoire impériale chinoise." : p>=.5 ? "Bon score ! Quelques dynasties restent à approfondir." : "Continuez à explorer les dynasties !",
+  },
+  en: {
+    appTitle: 'Chinese Dynasties',
+    appSub: '中国王朝',
+    tabs: ['Dynasties','Emperors','Map','Quiz'],
+    search: 'Search an emperor…',
+    quizTitle: 'Quiz — Chinese Dynasties',
+    quizSub: 'Test your knowledge of Chinese imperial history',
+    qm: ['Dynasties','Dates & chronology','Capitals','Mix'],
+    qms: ["Identify the era of each dynasty","Place dynasties in chronological order","Find the imperial capitals","Varied questions on all dynasties"],
+    quizNext: 'Next question →',
+    quizReplay: 'Play again',
+    settingsTitle: 'Other apps',
+    settingsClose: 'Close',
+    detailBack: '← Back',
+    capitale: 'Capital',
+    voirEmpereurs: 'See the emperors →',
+    eraAll: 'All',
+    eras: {'Antiquité':'Antiquity','Impérial ancien':'Early Imperial','Médiéval':'Medieval','Moderne':'Modern'},
+    facts: {empereurs:'Emperors',duree:'Duration',fondateur:'Founder',fin_cause:'End'},
+    lbl: {Règne:'Reign',Naissance:'Birth',Décès:'Death',Titre:'Title'},
+    avjc: 'BC',
+    quizQ: {
+      dynasties: d => `Which era does the ${d.nom_en||d.nom} dynasty (${d.cn}) belong to?`,
+      dates: d => `What is the period of the ${d.nom_en||d.nom} dynasty?`,
+      capitales: d => `What was the capital of the ${d.nom_en||d.nom} dynasty?`,
+    },
+    score: (s,t) => `${s} / ${t}`,
+    comment: p => p>=.8 ? "Excellent! You've mastered Chinese imperial history." : p>=.5 ? "Good score! A few dynasties to review." : "Keep exploring the dynasties!",
+  }
+};
+
+function t(){ return T[lang]; }
+
+function applyLang(){
+  const tx = t();
+  document.getElementById('appTitle').innerHTML = `${tx.appTitle} <span>${tx.appSub}</span>`;
+  document.getElementById('btnLang').textContent = lang==='fr' ? '🇬🇧' : '🇫🇷';
+  document.querySelectorAll('.tab').forEach((btn,i) => btn.textContent = tx.tabs[i]);
+  document.getElementById('searchInput').placeholder = tx.search;
+  document.getElementById('quizTitle').textContent = tx.quizTitle;
+  document.getElementById('quizSubtitle').textContent = tx.quizSub;
+  ['qm0','qm1','qm2','qm3'].forEach((id,i) => {
+    const btn = document.getElementById(id);
+    btn.childNodes[0].textContent = tx.qm[i];
+    document.getElementById(id+'s').textContent = tx.qms[i];
+  });
+  document.getElementById('quizNext').textContent = tx.quizNext;
+  document.getElementById('quizReplay').textContent = tx.quizReplay;
+  document.getElementById('settingsTitle').textContent = tx.settingsTitle;
+  document.getElementById('settingsCloseBtn').textContent = tx.settingsClose;
+  document.getElementById('detailBack').textContent = tx.detailBack;
+  // Re-render content
+  buildFilterBar();
+  renderDynasties();
+  renderEmpereurs(document.getElementById('searchInput').value);
+}
+
+document.getElementById('btnLang').onclick = () => {
+  lang = lang==='fr' ? 'en' : 'fr';
+  applyLang();
+};
+
+// ===================== DATA =====================
+const DYNASTIES = [
+  {id:'xia',nom:'Xia',nom_en:'Xia',cn:'夏',periode:'v. 2070–1600 av. J.-C.',debut:-2070,fin:-1600,capital:'Erlitou (?)',era:'Antiquité',tag:'ant',
+   desc:"Première dynasty légendaire de Chine, fondée selon la tradition par Yu le Grand qui dompte les crues du fleuve Jaune. Son existence reste débattue par les archéologues mais la culture Erlitou lui est souvent associée.",
+   desc_en:"China's first legendary dynasty, traditionally founded by Yu the Great who tamed the Yellow River floods. Its existence is debated by archaeologists, but the Erlitou culture is often associated with it.",
+   facts:{empereurs:'17 rois',duree:'~470 ans',fondateur:'Yu le Grand',fin_cause:'Renversée par Shang'},
+   facts_en:{empereurs:'17 kings',duree:'~470 years',fondateur:'Yu the Great',fin_cause:'Overthrown by Shang'},
+   position:[34.5,112.5]},
+  {id:'shang',nom:'Shang',nom_en:'Shang',cn:'商',periode:'v. 1600–1046 av. J.-C.',debut:-1600,fin:-1046,capital:'Yin (Anyang)',era:'Antiquité',tag:'ant',
+   desc:"Première dynasty attestée archéologiquement. Les Shang développent l'écriture oraculaire sur os et bronze, fondant la civilisation chinoise classique. Grands bronziers, ils pratiquent des sacrifices humains rituels.",
+   desc_en:"The first archaeologically verified dynasty. The Shang developed oracle bone script and bronze casting, laying the foundations of classical Chinese civilization.",
+   facts:{empereurs:'30 rois',duree:'~554 ans',fondateur:'Tang',fin_cause:'Défaite de Muye'},
+   facts_en:{empereurs:'30 kings',duree:'~554 years',fondateur:'Tang',fin_cause:'Battle of Muye'},
+   position:[36.1,114.3]},
+  {id:'zhou',nom:'Zhou',nom_en:'Zhou',cn:'周',periode:'1046–256 av. J.-C.',debut:-1046,fin:-256,capital:'Hao puis Luoyi',era:'Antiquité',tag:'ant',
+   desc:"La plus longue dynasty chinoise. Elle se divise en Zhou de l'Ouest et Zhou de l'Est. La période des Royaumes Combattants voit émerger Confucius, Laozi et les Cent Écoles de pensée.",
+   desc_en:"The longest Chinese dynasty, divided into Western and Eastern Zhou. The Warring States period saw the emergence of Confucius, Laozi and the Hundred Schools of Thought.",
+   facts:{empereurs:'+35 rois',duree:'790 ans',fondateur:'Roi Wu',fin_cause:'Absorbée par Qin'},
+   facts_en:{empereurs:'+35 kings',duree:'790 years',fondateur:'King Wu',fin_cause:'Absorbed by Qin'},
+   position:[34.7,108.9]},
+  {id:'qin',nom:'Qin',nom_en:'Qin',cn:'秦',periode:'221–206 av. J.-C.',debut:-221,fin:-206,capital:'Xianyang',era:'Impérial ancien',tag:'imp',
+   desc:"Qin Shi Huangdi unifie pour la première fois la Chine en 221 av. J.-C. et prend le titre d'Empereur. Il standardise l'écriture, les poids et mesures, fait construire la Grande Muraille et son armée de terre cuite.",
+   desc_en:"Qin Shi Huangdi unified China for the first time in 221 BC and took the title of Emperor. He standardised writing, weights and measures, built the Great Wall and his terracotta army.",
+   facts:{empereurs:'2 empereurs',duree:'15 ans',fondateur:'Qin Shi Huangdi',fin_cause:'Révoltes populaires'},
+   facts_en:{empereurs:'2 emperors',duree:'15 years',fondateur:'Qin Shi Huangdi',fin_cause:'Popular revolts'},
+   position:[34.3,108.7]},
+  {id:'han',nom:'Han',nom_en:'Han',cn:'漢',periode:'206 av. J.-C. – 220 ap. J.-C.',debut:-206,fin:220,capital:"Chang'an puis Luoyang",era:'Impérial ancien',tag:'imp',
+   desc:"L'âge d'or de l'Antiquité chinoise. Les Han consolident l'Empire, instituent le mandarinat confucéen, ouvrent la Route de la Soie et repoussent les Xiongnu. Les Chinois s'appellent encore « peuple Han ».",
+   desc_en:"The golden age of Chinese antiquity. The Han consolidated the Empire, established Confucian bureaucracy, opened the Silk Road and pushed back the Xiongnu. Chinese people still call themselves 'Han people'.",
+   facts:{empereurs:'29 empereurs',duree:'426 ans',fondateur:'Gaozu (Liu Bang)',fin_cause:'Warlords des Trois Royaumes'},
+   facts_en:{empereurs:'29 emperors',duree:'426 years',fondateur:'Gaozu (Liu Bang)',fin_cause:'Three Kingdoms warlords'},
+   position:[34.3,108.9]},
+  {id:'troisroyaumes',nom:'Trois Royaumes',nom_en:'Three Kingdoms',cn:'三國',periode:'220–280',debut:220,fin:280,capital:'Multiple',era:'Médiéval',tag:'med',
+   desc:"Wei, Shu et Wu se disputent la Chine. Période de chevalerie et de tragédie immortalisée par le roman « Les Trois Royaumes ». Cao Cao, Liu Bei et Sun Quan sont les héros épiques de cette ère morcelée.",
+   desc_en:"Wei, Shu and Wu fought over China. This period of chivalry and tragedy was immortalised by the novel 'Romance of the Three Kingdoms'. Cao Cao, Liu Bei and Sun Quan are its epic heroes.",
+   facts:{empereurs:'Multiple',duree:'60 ans',fondateur:'Cao Pi (Wei)',fin_cause:'Unification par Jin'},
+   facts_en:{empereurs:'Multiple',duree:'60 years',fondateur:'Cao Pi (Wei)',fin_cause:'Unified by Jin'},
+   position:[32.0,113.0]},
+  {id:'jin',nom:'Jin',nom_en:'Jin',cn:'晉',periode:'265–420',debut:265,fin:420,capital:'Luoyang puis Jiankang',era:'Médiéval',tag:'med',
+   desc:"Les Jin réunifient brièvement la Chine avant que les invasions barbares ne fragmentent le Nord. La Chine du Sud reste Jin (Jin de l'Est) pendant que le Nord se morcelle en Seize Royaumes.",
+   desc_en:"The Jin briefly reunified China before barbarian invasions fragmented the North. Southern China remained Jin (Eastern Jin) while the North split into the Sixteen Kingdoms.",
+   facts:{empereurs:'15 empereurs',duree:'155 ans',fondateur:'Wudi (Sima Yan)',fin_cause:'Invasions et sécessions'},
+   facts_en:{empereurs:'15 emperors',duree:'155 years',fondateur:'Wudi (Sima Yan)',fin_cause:'Invasions and secessions'},
+   position:[34.6,112.4]},
+  {id:'suei',nom:'Sui',nom_en:'Sui',cn:'隋',periode:'581–618',debut:581,fin:618,capital:"Daxing (Xi'an)",era:'Médiéval',tag:'med',
+   desc:"Les Sui réunifient la Chine après 360 ans de division. L'Empereur Yangdi creuse le Grand Canal (1 800 km), mais ses guerres coréennes ruineuses et ses corvées provoquent des révoltes généralisées.",
+   desc_en:"The Sui reunified China after 360 years of division. Emperor Yangdi dug the Grand Canal (1,800 km), but his costly Korean wars and forced labour sparked widespread revolts.",
+   facts:{empereurs:'3 empereurs',duree:'37 ans',fondateur:'Wendi (Yang Jian)',fin_cause:"Révoltes, assassinat de Yangdi"},
+   facts_en:{empereurs:'3 emperors',duree:'37 years',fondateur:'Wendi (Yang Jian)',fin_cause:"Revolts, Yangdi's assassination"},
+   position:[34.3,108.9]},
+  {id:'tang',nom:'Tang',nom_en:'Tang',cn:'唐',periode:'618–907',debut:618,fin:907,capital:"Chang'an",era:'Médiéval',tag:'med',
+   desc:"Apogée de la civilisation médiévale chinoise. Chang'an est la plus grande ville du monde. Poésie, peinture, bouddhisme, Route de la Soie : les Tang rayonnent sur toute l'Asie. Wu Zetian, seule Impératrice régnante.",
+   desc_en:"The peak of medieval Chinese civilisation. Chang'an was the world's largest city. Poetry, painting, Buddhism, the Silk Road: the Tang shone across all of Asia. Wu Zetian, the only reigning Empress.",
+   facts:{empereurs:'21 empereurs',duree:'289 ans',fondateur:'Gaozu (Li Yuan)',fin_cause:'Révolte de Huang Chao'},
+   facts_en:{empereurs:'21 emperors',duree:'289 years',fondateur:'Gaozu (Li Yuan)',fin_cause:"Huang Chao's revolt"},
+   position:[34.3,108.9]},
+  {id:'song',nom:'Song',nom_en:'Song',cn:'宋',periode:'960–1279',debut:960,fin:1279,capital:"Kaifeng puis Lin'an",era:'Médiéval',tag:'med',
+   desc:"Renaissance culturelle et économique : imprimerie, boussole, poudre à canon diffusées. La Chine Song produit plus d'acier que l'Europe entière au XIIe s. Ils résistent 45 ans aux Mongols.",
+   desc_en:"Cultural and economic renaissance: printing, compass and gunpowder spread. Song China produced more steel than all of Europe in the 12th century. They held out against the Mongols for 45 years.",
+   facts:{empereurs:'18 empereurs',duree:'319 ans',fondateur:'Taizu (Zhao Kuangyin)',fin_cause:'Conquête mongole'},
+   facts_en:{empereurs:'18 emperors',duree:'319 years',fondateur:'Taizu (Zhao Kuangyin)',fin_cause:'Mongol conquest'},
+   position:[34.8,114.3]},
+  {id:'yuan',nom:'Yuan',nom_en:'Yuan',cn:'元',periode:'1271–1368',debut:1271,fin:1368,capital:'Khanbaliq (Pékin)',era:'Médiéval',tag:'med',
+   desc:"Dynasty mongole fondée par Kubilai Khan. Premier empire réunissant Chine du Nord et du Sud sous domination étrangère. Marco Polo visite la cour de Kubilai.",
+   desc_en:"Mongol dynasty founded by Kublai Khan. The first empire uniting northern and southern China under foreign rule. Marco Polo visited Kublai's court.",
+   facts:{empereurs:'11 khans',duree:'97 ans',fondateur:'Kubilai Khan',fin_cause:'Révoltes Turbans rouges'},
+   facts_en:{empereurs:'11 khans',duree:'97 years',fondateur:'Kublai Khan',fin_cause:'Red Turban revolts'},
+   position:[39.9,116.4]},
+  {id:'ming',nom:'Ming',nom_en:'Ming',cn:'明',periode:'1368–1644',debut:1368,fin:1644,capital:'Nanjing puis Pékin',era:'Moderne',tag:'mod',
+   desc:"Restauration de la règle Han. Les Ming agrandissent la Grande Muraille, construisent la Cité Interdite, envoient Zheng He explorer l'Afrique et l'Arabie. La Chine est la première économie mondiale.",
+   desc_en:"Restoration of Han rule. The Ming expanded the Great Wall, built the Forbidden City, and sent Zheng He to explore Africa and Arabia. China was the world's largest economy.",
+   facts:{empereurs:'16 empereurs',duree:'276 ans',fondateur:'Hongwu (Zhu Yuanzhang)',fin_cause:'Invasion mandchoue'},
+   facts_en:{empereurs:'16 emperors',duree:'276 years',fondateur:'Hongwu (Zhu Yuanzhang)',fin_cause:'Manchu invasion'},
+   position:[39.9,116.4]},
+  {id:'qing',nom:'Qing',nom_en:'Qing',cn:'清',periode:'1644–1912',debut:1644,fin:1912,capital:'Pékin',era:'Moderne',tag:'mod',
+   desc:"Dernière dynasty impériale, d'origine mandchoue. Apogée territorial sous Qianlong (11 M km²). Déclin face aux puissances occidentales. Fin avec l'abdication de Puyi en 1912.",
+   desc_en:"The last imperial dynasty, of Manchu origin. Greatest territorial extent under Qianlong (11M km²). Decline against Western powers. Ended with Puyi's abdication in 1912.",
+   facts:{empereurs:'12 empereurs',duree:'268 ans',fondateur:'Shunzhi (Fulin)',fin_cause:'Révolution républicaine 1912'},
+   facts_en:{empereurs:'12 emperors',duree:'268 years',fondateur:'Shunzhi (Fulin)',fin_cause:'Republican Revolution 1912'},
+   position:[39.9,116.4]},
+];
+
+const EMPEREURS = [
+  {id:'qinshihuang',nom:'Qin Shi Huangdi',cn:'秦始皇',dynastieId:'qin',naissance:-259,mort:-210,regne:'-221 – -210',titre:'Premier Empereur de Chine',titre_en:'First Emperor of China',emoji:'🐉',
+   desc:'<p>Ying Zheng unifie les six royaumes combattants et se proclame Huangdi en 221 av. J.-C. Il standardise l\'écriture, les mesures, la monnaie et les axes des routes.</p><h3>Grandes réalisations</h3><p>Construction de la Grande Muraille, creusement du canal Lingqu, érection du mausolée de Xi\'an gardé par 8 000 soldats de terre cuite.</p>',
+   desc_en:'<p>Ying Zheng unified the six warring kingdoms and proclaimed himself Huangdi in 221 BC. He standardised writing, measurements, currency and road axes.</p><h3>Major achievements</h3><p>Built the Great Wall, dug the Lingqu canal, erected the Xi\'an mausoleum guarded by 8,000 terracotta soldiers.</p>',
+   wikiTitle:'Qin_Shi_Huang'},
+  {id:'gaozu',nom:'Gaozu',cn:'漢高祖',dynastieId:'han',naissance:-256,mort:-195,regne:'-206 – -195',titre:'Fondateur de la dynasty Han',titre_en:'Founder of the Han dynasty',emoji:'⚔️',
+   desc:'<p>Liu Bang, paysan devenu rebelle, bat le général Xiang Yu et fonde la dynasty Han en 202 av. J.-C. Il adopte une politique de reconstruction : baisses d\'impôts, réduction des travaux forcés.</p>',
+   desc_en:'<p>Liu Bang, a peasant turned rebel, defeated general Xiang Yu and founded the Han dynasty in 202 BC. He adopted a reconstruction policy: tax cuts and reduced forced labour.</p>',
+   wikiTitle:'Emperor_Gaozu_of_Han'},
+  {id:'wudi_han',nom:'Wudi',cn:'漢武帝',dynastieId:'han',naissance:-156,mort:-87,regne:'-141 – -87',titre:'Empereur Martial des Han',titre_en:'Martial Emperor of Han',emoji:'🏹',
+   desc:'<p>Le plus célèbre des empereurs Han. Il repousse les Xiongnu, ouvre la Route de la Soie et fait du confucianisme l\'idéologie officielle.</p>',
+   desc_en:'<p>The most famous Han emperor. He pushed back the Xiongnu, opened the Silk Road and made Confucianism the official state ideology.</p>',
+   wikiTitle:'Emperor_Wu_of_Han'},
+  {id:'taizong',nom:'Taizong',cn:'唐太宗',dynastieId:'tang',naissance:598,mort:649,regne:'626 – 649',titre:"Fondateur de l'ère de Zhenguan",titre_en:'Founder of the Zhenguan era',emoji:'📜',
+   desc:'<p>Li Shimin est considéré comme l\'un des meilleurs empereurs de l\'histoire chinoise. Son règne, l\'ère Zhenguan, est un modèle de bonne gouvernance : réformes administratives, ouverture aux étrangers, épanouissement des arts.</p>',
+   desc_en:'<p>Li Shimin is considered one of the greatest emperors in Chinese history. His reign, the Zhenguan era, is a model of good governance: administrative reforms, openness to foreigners, flourishing of the arts.</p>',
+   wikiTitle:'Emperor_Taizong_of_Tang'},
+  {id:'wuzetian',nom:'Wu Zetian',cn:'武則天',dynastieId:'tang',naissance:624,mort:705,regne:'690 – 705',titre:'Seule Impératrice régnante de Chine',titre_en:'China\'s only reigning Empress',emoji:'👸',
+   desc:'<p>Wu Zetian s\'empare progressivement du pouvoir et se proclame fondatrice d\'une nouvelle dynasty Zhou en 690. Unique femme à avoir régné souverainement sur la Chine.</p><h3>Héritage</h3><p>Elle développe le système des examens impériaux et mena des guerres victorieuses en Corée et en Asie centrale.</p>',
+   desc_en:'<p>Wu Zetian gradually seized power and proclaimed herself founder of a new Zhou dynasty in 690. The only woman to have reigned sovereignly over China.</p><h3>Legacy</h3><p>She developed the imperial examination system and waged victorious wars in Korea and Central Asia.</p>',
+   wikiTitle:'Wu_Zetian'},
+  {id:'xuanzong',nom:'Xuanzong',cn:'唐玄宗',dynastieId:'tang',naissance:685,mort:762,regne:'712 – 756',titre:"Époque Kaiyuan, âge d'or Tang",titre_en:'Kaiyuan era, Tang golden age',emoji:'🎵',
+   desc:'<p>Le plus long règne Tang. La première moitié (ère Kaiyuan) est un sommet de civilisation : poésie de Li Bai et Du Fu, musique de cour, prospérité commerciale. La rébellion d\'An Lushan (755) brise l\'empire.</p>',
+   desc_en:'<p>The longest Tang reign. The first half (Kaiyuan era) was a peak of civilisation: poetry of Li Bai and Du Fu, court music, commercial prosperity. The An Lushan rebellion (755) shattered the empire.</p>',
+   wikiTitle:'Emperor_Xuanzong_of_Tang'},
+  {id:'taizu_song',nom:'Taizu',cn:'宋太祖',dynastieId:'song',naissance:927,mort:976,regne:'960 – 976',titre:'Fondateur de la dynasty Song',titre_en:'Founder of the Song dynasty',emoji:'⚔️',
+   desc:'<p>Zhao Kuangyin, général militaire, est acclamé Empereur par ses troupes en 960 et fonde les Song. Il réunifie progressivement la Chine du Sud.</p>',
+   desc_en:'<p>Zhao Kuangyin, a military general, was acclaimed Emperor by his troops in 960 and founded the Song. He progressively reunified southern China.</p>',
+   wikiTitle:'Emperor_Taizu_of_Song'},
+  {id:'huizong',nom:'Huizong',cn:'宋徽宗',dynastieId:'song',naissance:1082,mort:1135,regne:'1100 – 1125',titre:'Calligraphe-Empereur',titre_en:'The Painter-Emperor',emoji:'🖌️',
+   desc:'<p>Peut-être le plus grand peintre-calligraphe de l\'histoire chinoise sur le trône. Son goût pour l\'art éclipsa ses devoirs politiques : capturé par les Jin en 1127, il mourut en captivité.</p>',
+   desc_en:'<p>Perhaps the greatest painter-calligrapher in Chinese history on the throne. His passion for art eclipsed his political duties: captured by the Jin in 1127, he died in captivity.</p>',
+   wikiTitle:'Emperor_Huizong_of_Song'},
+  {id:'kubilai',nom:'Kubilai Khan',cn:'忽必烈汗',dynastieId:'yuan',naissance:1215,mort:1294,regne:'1260 – 1294',titre:'Fondateur de la dynasty Yuan',titre_en:'Founder of the Yuan dynasty',emoji:'🐎',
+   desc:'<p>Petit-fils de Gengis Khan, Kubilai achève la conquête de la Chine Song en 1279. Il fait de Khanbaliq (Pékin) sa capitale. Marco Polo séjourne à sa cour pendant 17 ans.</p>',
+   desc_en:'<p>Grandson of Genghis Khan, Kublai completed the conquest of Song China in 1279. He made Khanbaliq (Beijing) his capital. Marco Polo stayed at his court for 17 years.</p>',
+   wikiTitle:'Kublai_Khan'},
+  {id:'hongwu',nom:'Hongwu',cn:'明太祖',dynastieId:'ming',naissance:1328,mort:1398,regne:'1368 – 1398',titre:'Fondateur de la dynasty Ming',titre_en:'Founder of the Ming dynasty',emoji:'🌾',
+   desc:'<p>Zhu Yuanzhang, fils de paysans pauvres, devient chef rebelle et expulse les Mongols Yuan. Premier et seul Empereur d\'origine vraiment paysanne.</p>',
+   desc_en:'<p>Zhu Yuanzhang, son of poor peasants, became a rebel leader and expelled the Yuan Mongols. The first and only Emperor of truly peasant origin.</p>',
+   wikiTitle:'Hongwu_Emperor'},
+  {id:'yongle',nom:'Yongle',cn:'明成祖',dynastieId:'ming',naissance:1360,mort:1424,regne:'1402 – 1424',titre:'Bâtisseur de Pékin',titre_en:'Builder of Beijing',emoji:'🏯',
+   desc:'<p>Transfère la capitale à Pékin et fait construire la Cité Interdite (1406–1420). Mandate l\'amiral Zheng He pour sept expéditions maritimes jusqu\'en Afrique orientale.</p>',
+   desc_en:'<p>Moved the capital to Beijing and built the Forbidden City (1406–1420). Commissioned Admiral Zheng He for seven maritime expeditions as far as East Africa.</p>',
+   wikiTitle:'Yongle_Emperor'},
+  {id:'kangxi',nom:'Kangxi',cn:'康熙帝',dynastieId:'qing',naissance:1654,mort:1722,regne:'1661 – 1722',titre:'Plus long règne impérial chinois',titre_en:'Longest Chinese imperial reign',emoji:'📚',
+   desc:'<p>Monté sur le trône à 8 ans, Kangxi règne 61 ans. Il repousse les Russes (traité de Nerchinsk 1689), intègre Taiwan, contrôle la Mongolie et le Tibet.</p>',
+   desc_en:'<p>Enthroned at age 8, Kangxi reigned for 61 years. He pushed back the Russians (Treaty of Nerchinsk 1689), integrated Taiwan, and controlled Mongolia and Tibet.</p>',
+   wikiTitle:'Kangxi_Emperor'},
+  {id:'qianlong',nom:'Qianlong',cn:'乾隆帝',dynastieId:'qing',naissance:1711,mort:1799,regne:'1735 – 1796',titre:'Apogée territorial Qing',titre_en:'Qing territorial peak',emoji:'🗺️',
+   desc:'<p>Sous Qianlong, l\'empire atteint son extension maximale (11 millions de km²). Poète prolifique (plus de 40 000 poèmes), il abdique en 1796 mais garde le pouvoir réel jusqu\'à sa mort.</p>',
+   desc_en:'<p>Under Qianlong the empire reached its maximum extent (11 million km²). A prolific poet (over 40,000 poems), he abdicated in 1796 but retained real power until his death.</p>',
+   wikiTitle:'Qianlong_Emperor'},
+  {id:'puyi',nom:'Puyi',cn:'溥儀',dynastieId:'qing',naissance:1906,mort:1967,regne:'1908 – 1912',titre:'Dernier Empereur de Chine',titre_en:'Last Emperor of China',emoji:'👑',
+   desc:"<p>Dernier Empereur de Chine, couronné à 2 ans. Abdique en 1912. Installé par les Japonais comme Empereur fantoche du Mandchoukouo (1934–1945). Après rééducation, finit sa vie comme citoyen ordinaire à Pékin.</p><h3>Postérité</h3><p>Son autobiographie inspira le film « Le Dernier Empereur » de Bernardo Bertolucci (Oscar 1988).</p>",
+   desc_en:"<p>Last Emperor of China, crowned at age 2. Abdicated in 1912. Installed by Japan as puppet Emperor of Manchukuo (1934–1945). After re-education, lived out his days as an ordinary citizen in Beijing.</p><h3>Legacy</h3><p>His autobiography inspired Bernardo Bertolucci's film 'The Last Emperor' (Oscar 1988).</p>",
+   wikiTitle:'Puyi'},
+];
+
+const APPS_PORTFOLIO = [
+  {icon:'🇺🇸',nom:'États-Unis',id:'id6762370541'},
+  {icon:'⚓',nom:'Bataille Navale',id:'id6762091681'},
+  {icon:'👑',nom:'Familles Royales',id:'id6762098486'},
+  {icon:'🌍',nom:'Leaders Européens',id:'id6762263227'},
+  {icon:'🇪🇺',nom:'Pays UE',id:'id6762346365'},
+  {icon:'🏛️',nom:'Présidents Américains',id:'id6762256169'},
+  {icon:'🎯',nom:'Dames Checkers',id:'id6762076518'},
+  {icon:'🎭',nom:'Comédie Française',id:'id6761993002'},
+  {icon:'📜',nom:'Institut de France',id:'id6761769529'},
+  {icon:'🏛️',nom:'Présidents Français',id:'id6761324444'},
+  {icon:'⛪',nom:'Basilique Saint-Denis',id:'id6761709149'},
+  {icon:'🌳',nom:'Arbres de France',id:'id6761685637'},
+  {icon:'🏛️',nom:'Sénat Paris',id:'id6761363063'},
+  {icon:'🎼',nom:'Compositeurs',id:'id6761656628'},
+  {icon:'⚔️',nom:'Maréchaux Napoléon',id:'id6761374601'},
+  {icon:'👑',nom:'Rois de France',id:'id6761322546'},
+  {icon:'🏛️',nom:'Assemblée Paris',id:'id6761361079'},
+  {icon:'🕊️',nom:'Panthéon Paris',id:'id6761335268'},
+  {icon:'🃏',nom:'Belote Calc',id:'id1483084001'},
+  {icon:'🌿',nom:'Cimetières Paris',id:'id6760751055'},
+  {icon:'🀄',nom:'Tarots Calc',id:'id1481989301'},
+  {icon:'📖',nom:'Académie française',id:'id6761334922'},
+  {icon:'🎵',nom:'Scènes Paris',id:'id6761293938'},
+  {icon:'💊',nom:'MediSafe-Pharmacie',id:'id6761271324'},
+  {icon:'🍽️',nom:'MesRestaurants',id:'id6760617965'},
+  {icon:'🍷',nom:'Cave Manager',id:'id6760126279'},
+  {icon:'🖼️',nom:'Musées Paris',id:'id6760890465'},
+  {icon:'🎭',nom:'Théâtres Paris',id:'id6760929391'},
+  {icon:'❄️',nom:'Frigo Manager',id:'id6759219383'},
+  {icon:'❤️',nom:"Toi ou Moi",id:'id1475884625'},
+  {icon:'🗺️',nom:"Capitales d'Europe",id:'id6761421276'},
+];
+
+// ===================== STATE =====================
+let activeTab='Dynasties', activeDynasty='all', mapInit=false;
+let quizQuestions=[], quizIdx=0, quizScore=0, answered=false;
+
+// ===================== TABS =====================
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#content > div').forEach(d=>d.style.display='none');
+    document.getElementById('tab'+tab).style.display = tab==='Carte' ? 'flex' : 'block';
+    activeTab = tab;
+    if(tab==='Carte' && !mapInit) initMap();
+  });
+});
+
+// ===================== DYNASTIES =====================
+const ERAS = ['all','Antiquité','Impérial ancien','Médiéval','Moderne'];
+
+function buildFilterBar(){
+  const fb = document.getElementById('filterBar');
+  fb.innerHTML = '';
+  const tx = t();
+  ERAS.forEach(e => {
+    const btn = document.createElement('button');
+    btn.className = 'pill' + (e===activeDynasty?' active':'');
+    btn.textContent = e==='all' ? tx.eraAll : (tx.eras[e]||e);
+    btn.onclick = () => {
+      activeDynasty = e;
+      document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      renderDynasties();
+    };
+    fb.appendChild(btn);
+  });
+}
+
+function renderDynasties(){
+  const list = document.getElementById('dynastyList');
+  list.innerHTML = '';
+  const tx = t();
+  const filtered = activeDynasty==='all' ? DYNASTIES : DYNASTIES.filter(d=>d.era===activeDynasty);
+  filtered.forEach(d => {
+    const eraLabel = tx.eras[d.era] || d.era;
+    const desc = lang==='en' ? (d.desc_en||d.desc) : d.desc;
+    const facts = lang==='en' ? (d.facts_en||d.facts) : d.facts;
+    const factLabels = tx.facts;
+    const card = document.createElement('div');
+    card.className = 'dynasty-card';
+    card.innerHTML = `
+      <div class="dynasty-header" onclick="toggleDynasty('${d.id}')">
+        <div class="dynasty-era"><div class="cn">${d.cn}</div><div class="year">${d.periode}</div></div>
+        <div class="dynasty-info">
+          <h3>${lang==='en'?(d.nom_en||d.nom):d.nom}</h3>
+          <div class="sub">${tx.capitale} : ${d.capital}</div>
+        </div>
+        <span class="dynasty-tag ${d.tag}">${eraLabel}</span>
+      </div>
+      <div class="dynasty-body" id="body_${d.id}">
+        <p>${desc}</p>
+        <div class="facts">
+          ${Object.entries(facts).map(([k,v])=>`<div class="fact-item"><div class="lbl">${factLabels[k]||k}</div><div class="val">${v}</div></div>`).join('')}
+        </div>
+        <button class="empereurs-btn" onclick="showEmpsByDynasty('${d.id}')">${tx.voirEmpereurs}</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function toggleDynasty(id){
+  document.getElementById('body_'+id).classList.toggle('open');
+}
+
+// ===================== EMPEREURS =====================
+function renderEmpereurs(filter='', dynastieFilter=''){
+  const list = document.getElementById('empList');
+  list.innerHTML = '';
+  const norm = s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  let emps = EMPEREURS;
+  if(dynastieFilter) emps = emps.filter(e=>e.dynastieId===dynastieFilter);
+  if(filter) emps = emps.filter(e=>norm(e.nom).includes(norm(filter))||e.cn.includes(filter));
+  const tx = t();
+  emps.forEach(e => {
+    const dyn = DYNASTIES.find(d=>d.id===e.dynastieId);
+    const dynName = dyn ? (lang==='en'?(dyn.nom_en||dyn.nom):dyn.nom) : '';
+    const card = document.createElement('div');
+    card.className = 'emp-card';
+    card.innerHTML = `
+      <div class="emp-photo" id="ephoto_${e.id}">${e.emoji||'👑'}</div>
+      <div class="emp-info">
+        <h4>${e.nom}</h4>
+        <div class="emp-cn">${e.cn}</div>
+        <div class="emp-sub">${dynName} · ${e.regne}</div>
+      </div>`;
+    card.onclick = () => openDetail(e.id);
+    list.appendChild(card);
+    loadWikiImg(e.id, 'ephoto_'+e.id);
+  });
+  if(!emps.length) list.innerHTML=`<p style="color:#7a6a40;font-family:var(--font-b);text-align:center;padding:30px">${lang==='en'?'No results':'Aucun résultat'}</p>`;
+}
+
+document.getElementById('searchInput').addEventListener('input', e=>renderEmpereurs(e.target.value));
+
+function showEmpsByDynasty(dynId){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelector('[data-tab="Empereurs"]').classList.add('active');
+  document.querySelectorAll('#content > div').forEach(d=>d.style.display='none');
+  document.getElementById('tabEmpereurs').style.display='block';
+  renderEmpereurs('', dynId);
+}
+
+// ===================== WIKI IMG =====================
+const imgCache = {};
+let jsonpCounter = 0;
+
+function loadWikiImg(empId, elemId, size=120){
+  const e = EMPEREURS.find(x=>x.id===empId);
+  if(!e||!e.wikiTitle) return;
+  if(imgCache[empId]){ applyImg(elemId, imgCache[empId]); return; }
+  const cbName = '_wpCb'+(jsonpCounter++);
+  const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(e.wikiTitle)}&prop=pageimages&piprop=thumbnail&pithumbsize=${size}&format=json&callback=${cbName}`;
+  window[cbName] = function(data){
+    try{
+      const pages = data?.query?.pages||{};
+      const imgUrl = Object.values(pages)[0]?.thumbnail?.source;
+      if(imgUrl){ imgCache[empId]=imgUrl; applyImg(elemId,imgUrl); }
+    }catch(err){}
+    delete window[cbName];
+    document.getElementById('s_'+cbName)?.remove();
+  };
+  const script = document.createElement('script');
+  script.id = 's_'+cbName;
+  script.src = url;
+  script.onerror = ()=>{ delete window[cbName]; script.remove(); };
+  document.head.appendChild(script);
+}
+
+function applyImg(elemId, url){
+  const el = document.getElementById(elemId);
+  if(!el) return;
+  const img = new Image();
+  img.onload = ()=>{
+    el.textContent='';
+    el.style.backgroundImage=`url(${url})`;
+    el.style.backgroundSize='cover';
+    el.style.backgroundPosition='center top';
+  };
+  img.src = url;
+}
+
+// ===================== DETAIL =====================
+function openDetail(empId){
+  const e = EMPEREURS.find(x=>x.id===empId);
+  if(!e) return;
+  const dyn = DYNASTIES.find(d=>d.id===e.dynastieId);
+  const tx = t();
+  document.getElementById('detailName').textContent = e.nom;
+  document.getElementById('detailCN').textContent = e.cn;
+  document.getElementById('detailDyn').textContent = dyn ? (lang==='en'?(dyn.nom_en||dyn.nom):dyn.nom) : '';
+  document.getElementById('detailImg').innerHTML = e.emoji||'👑';
+  document.getElementById('detailImg').style.backgroundImage = 'none';
+  loadWikiImg(e.id, 'detailImg', 180);
+  const titre = lang==='en' ? (e.titre_en||e.titre) : e.titre;
+  const naissance = e.naissance<0 ? Math.abs(e.naissance)+' '+tx.avjc : e.naissance;
+  const mort = e.mort<0 ? Math.abs(e.mort)+' '+tx.avjc : e.mort;
+  document.getElementById('detailGrid').innerHTML=`
+    <div class="dg-item"><div class="lbl">${tx.lbl['Règne']}</div><div class="val">${e.regne}</div></div>
+    <div class="dg-item"><div class="lbl">${tx.lbl['Naissance']}</div><div class="val">${naissance}</div></div>
+    <div class="dg-item"><div class="lbl">${tx.lbl['Décès']}</div><div class="val">${mort}</div></div>
+    <div class="dg-item"><div class="lbl">${tx.lbl['Titre']}</div><div class="val">${titre}</div></div>`;
+  document.getElementById('detailBio').innerHTML = lang==='en' ? (e.desc_en||e.desc) : e.desc;
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetail(){
+  document.getElementById('detailOverlay').classList.remove('open');
+}
+
+// ===================== MAP =====================
+function initMap(){
+  mapInit = true;
+  const map = L.map('map',{zoomControl:false}).setView([35,105],4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(map);
+  L.control.zoom({position:'topright'}).addTo(map);
+  setTimeout(()=>map.invalidateSize(),300);
+  const eraColor = {'Antiquité':'#cd853f','Impérial ancien':'#c0392b','Médiéval':'#27ae60','Moderne':'#2980b9'};
+  DYNASTIES.forEach(d=>{
+    if(!d.position) return;
+    const color = eraColor[d.era]||'#c9a84c';
+    const icon = L.divIcon({className:'',html:`<div style="width:44px;height:44px;background:#fff;border-radius:50%;border:3px solid ${color};display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 2px 8px rgba(0,0,0,0.35);cursor:pointer;">${d.cn}</div>`,iconSize:[44,44],iconAnchor:[22,22],popupAnchor:[0,-26]});
+    const nom = lang==='en'?(d.nom_en||d.nom):d.nom;
+    const tx = t();
+    const marker = L.marker(d.position,{icon}).addTo(map);
+    marker.bindPopup(`<div style="font-family:'IM Fell English',Georgia,serif;min-width:160px;cursor:pointer;" onclick="switchToDynasty('${d.id}')"><div style="font-size:1rem;color:#c9a84c;font-weight:bold;">${nom} <span style="font-size:1.1rem">${d.cn}</span></div><div style="font-size:.75rem;color:#c8b882;margin-top:3px;">${d.periode}</div><div style="font-size:.72rem;color:#8a7a50;margin-top:2px;">${tx.capitale} : ${d.capital}</div><div style="font-size:.7rem;color:${color};margin-top:5px;text-align:right;">${lang==='en'?'See profile →':'Voir la fiche →'}</div></div>`,{className:'cn-popup',maxWidth:220});
+  });
+}
+
+function switchToDynasty(dynId){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelector('[data-tab="Dynasties"]').classList.add('active');
+  document.querySelectorAll('#content > div').forEach(d=>d.style.display='none');
+  document.getElementById('tabDynasties').style.display='block';
+  setTimeout(()=>{
+    const body=document.getElementById('body_'+dynId);
+    if(body&&!body.classList.contains('open')) body.classList.add('open');
+    body?.closest('.dynasty-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+}
+
+// ===================== QUIZ =====================
+function buildQuestions(mode){
+  const tx = t();
+  const qs = [];
+  if(mode==='dynasties'||mode==='mix'){
+    DYNASTIES.forEach(d=>{
+      const allNames = DYNASTIES.map(x=>lang==='en'?(x.nom_en||x.nom):x.nom);
+      const ans = lang==='en'?(d.nom_en||d.nom):d.nom;
+      const opts = shuffle(allNames.filter(n=>n!==ans).slice(0,3).concat([ans]));
+      qs.push({q:tx.quizQ.dynasties(d),opts,ans});
+    });
+  }
+  if(mode==='dates'||mode==='mix'){
+    DYNASTIES.forEach(d=>{
+      const decoys = shuffle(DYNASTIES.filter(x=>x.id!==d.id).map(x=>x.periode)).slice(0,3);
+      qs.push({q:tx.quizQ.dates(d),opts:shuffle([...decoys,d.periode]),ans:d.periode});
+    });
+  }
+  if(mode==='capitales'||mode==='mix'){
+    DYNASTIES.forEach(d=>{
+      const decoys = shuffle(DYNASTIES.filter(x=>x.id!==d.id).map(x=>x.capital)).slice(0,3);
+      qs.push({q:tx.quizQ.capitales(d),opts:shuffle([...decoys,d.capital]),ans:d.capital});
+    });
+  }
+  return shuffle(qs).slice(0,10);
+}
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
+
+function startQuiz(mode){
+  quizQuestions=buildQuestions(mode); quizIdx=0; quizScore=0;
+  document.getElementById('quizHome').style.display='none';
+  document.getElementById('quizGame').style.display='block';
+  document.getElementById('quizResult').style.display='none';
+  showQuestion();
+}
+
+function showQuestion(){
+  const q=quizQuestions[quizIdx];
+  answered=false;
+  document.getElementById('quizNext').style.display='none';
+  document.getElementById('quizResult').style.display='none';
+  const prog=document.getElementById('quizProgress');
+  prog.innerHTML='';
+  quizQuestions.forEach((_,i)=>{ const dot=document.createElement('div'); dot.className='qp-dot'+(i<quizIdx?' done':i===quizIdx?' current':''); prog.appendChild(dot); });
+  document.getElementById('quizQ').textContent=q.q;
+  document.getElementById('quizImg').style.display='none';
+  const opts=document.getElementById('quizOpts');
+  opts.innerHTML='';
+  q.opts.forEach(o=>{ const btn=document.createElement('button'); btn.className='quiz-opt'; btn.textContent=o; btn.onclick=()=>answerQuiz(o,q.ans,btn); opts.appendChild(btn); });
+}
+
+function answerQuiz(chosen,correct,btn){
+  if(answered) return;
+  answered=true;
+  if(chosen===correct){ btn.classList.add('correct'); quizScore++; }
+  else{ btn.classList.add('wrong'); document.querySelectorAll('.quiz-opt').forEach(b=>{ if(b.textContent===correct) b.classList.add('correct'); }); }
+  document.querySelectorAll('.quiz-opt').forEach(b=>b.onclick=null);
+  if(quizIdx<quizQuestions.length-1) document.getElementById('quizNext').style.display='block';
+  else setTimeout(showResult,800);
+}
+
+function nextQuestion(){ quizIdx++; showQuestion(); }
+
+function showResult(){
+  const tx=t();
+  document.getElementById('quizOpts').innerHTML='';
+  document.getElementById('quizNext').style.display='none';
+  document.getElementById('quizQ').textContent='';
+  document.getElementById('quizResult').style.display='block';
+  document.getElementById('quizScore').textContent=tx.score(quizScore,quizQuestions.length);
+  document.getElementById('quizComment').textContent=tx.comment(quizScore/quizQuestions.length);
+  document.getElementById('quizReplay').textContent=tx.quizReplay;
+}
+
+function backToQuizHome(){
+  document.getElementById('quizHome').style.display='block';
+  document.getElementById('quizGame').style.display='none';
+}
+
+// ===================== SETTINGS =====================
+document.getElementById('btnSettings').onclick = () => {
+  const list=document.getElementById('appsGrid');
+  document.getElementById('settingsTitle').textContent=t().settingsTitle;
+  document.getElementById('settingsCloseBtn').textContent=t().settingsClose;
+  if(!list.innerHTML){
+    APPS_PORTFOLIO.forEach(a=>{
+      const numId=a.id.replace('id','');
+      const div=document.createElement('div');
+      div.className='app-link';
+      div.innerHTML=`<img class="app-real-icon" id="icon_${numId}" src="" alt="${a.nom}"/><div class="app-name">${a.nom}</div><img class="app-store-badge" src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/fr-fr?size=250x83" alt="App Store"/>`;
+      div.onclick=()=>window.open(`https://apps.apple.com/fr/app/${a.id}`,'_system');
+      list.appendChild(div);
+      const cb='_itunes_'+numId;
+      window[cb]=function(data){ const icon=data?.results?.[0]?.artworkUrl100; if(icon){ const el=document.getElementById('icon_'+numId); if(el) el.src=icon; } delete window[cb]; document.getElementById('s_'+cb)?.remove(); };
+      const s=document.createElement('script'); s.id='s_'+cb;
+      s.src=`https://itunes.apple.com/lookup?id=${numId}&country=fr&callback=${cb}`;
+      document.head.appendChild(s);
+    });
+  }
+  document.getElementById('settingsOverlay').classList.add('open');
+};
+
+// ===================== INIT =====================
+buildFilterBar();
+renderDynasties();
+renderEmpereurs();
+document.getElementById('tabEmpereurs').style.display='none';
+document.getElementById('tabCarte').style.display='none';
+document.getElementById('tabQuiz').style.display='none';
+</script>
+</body>
+</html>
